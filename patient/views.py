@@ -4,6 +4,9 @@ from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 
+from patient.forms import PatientForm
+from patient.models import Patient
+
 
 # Create your views here.
 def index(request):
@@ -32,7 +35,8 @@ def userlogin(request):
 
 @login_required
 def dashboard(request):
-    return render(request,'dashboard.html')
+    patients = Patient.objects.all()  # Fetch all patients from the database
+    return render(request, 'dashboard.html', {'patients': patients})
 
 @login_required
 def profile(request):
@@ -46,3 +50,13 @@ def appointment(request):
 def logout_view(request):
     auth_logout(request)
     return redirect('login')
+
+def add_patient(request):
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = PatientForm()
+    return render(request, 'add_patient.html', {'form': form})

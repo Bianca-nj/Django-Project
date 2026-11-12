@@ -26,4 +26,5 @@ urlpatterns = [
     path('profile/',views.profile,name="profile"),
     path('appointment/',views.appointment,name="appointment"),
     path('logout/',views.logout_view,name="logout"),
+    path('add_patient/',views.add_patient,name="add_patient"),
 ]
