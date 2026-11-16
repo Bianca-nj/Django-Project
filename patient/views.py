@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
@@ -6,6 +6,9 @@ from django.contrib.auth import logout as auth_logout
 
 from patient.forms import PatientForm
 from patient.models import Patient
+from patient.serializers import PatientSerializer
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
 
 # Create your views here.
@@ -35,8 +38,20 @@ def userlogin(request):
 
 @login_required
 def dashboard(request):
-    patients = Patient.objects.all()  # Fetch all patients from the database
-    return render(request, 'dashboard.html', {'patients': patients})
+    patients = Patient.objects.all()
+
+    patient_forms = [
+        (patient, PatientForm(instance=patient))
+        for patient in patients
+    ]
+
+    add_form = PatientForm()
+
+    return render(request, 'dashboard.html', {
+        'patients': patients,
+        'patient_forms': patient_forms,
+        'add_form': add_form
+    })
 
 @login_required
 def profile(request):
@@ -60,3 +75,35 @@ def add_patient(request):
     else:
         form = PatientForm()
     return render(request, 'add_patient.html', {'form': form})
+
+@login_required
+def edit_patient(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    if request.method == 'POST':
+        form = PatientForm(request.POST, instance=patient)
+
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+
+    return redirect('dashboard')
+
+@login_required
+def patient_detail(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    return render(request, 'patient_detail.html', 
+                  {'patient': patient})
+
+@login_required
+def delete_patient(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        patient.delete()
+        return redirect('dashboard')
+    return render(request, 'delete_patient.html', {'patient': patient})
+
+class PatientViewSet(viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+    permission_classes = [AllowAny] 

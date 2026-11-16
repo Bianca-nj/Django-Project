@@ -1,14 +1,123 @@
 {% extends 'base.html' %}
-{% block title %}Register{% endblock %}
 {% load static %}
+
+{% block title %}Register | MediCare{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #202020;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .register-wrapper {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 450px;
+        padding: 35px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .brand i {
+        font-size: 35px;
+        color: #0dcaf0;
+    }
+
+    .brand h4 {
+        font-weight: bold;
+        color: #172b4d;
+        margin-top: 8px;
+    }
+
+    .register-container h2 {
+        text-align: center;
+        font-size: 23px;
+        margin-bottom: 25px;
+        color: #172b4d;
+    }
+
+    .register-container input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+    }
+
+    .register-container ul {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .register-btn {
+        width: 100%;
+        padding: 11px;
+        background-color: #172b4d;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .register-btn:hover {
+        background-color: #29466e;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .login-link a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="register-wrapper">
+    <div class="register-container">
 
-  <h2>Register Here</h2>
-  <form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-  </form>
-  <p>Already have an account?<a href="{% url 'login' %}">Login Here</a></p>
+        <div class="brand">
+            <i class="bi bi-heart-pulse-fill"></i>
+            <h4>MediCare</h4>
+        </div>
 
+        <h2>Create Account</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="register-btn">
+                Register
+            </button>
+        </form>
+
+        <div class="login-link">
+            Already have an account?
+            <a href="{% url 'login' %}">Login Here</a>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
