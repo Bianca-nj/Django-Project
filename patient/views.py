@@ -1,3 +1,5 @@
+from pyexpat.errors import messages
+
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login,authenticate
@@ -5,10 +7,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 
 from patient.forms import PatientForm
-from patient.models import Patient
+from patient.models import Patient, Payment
 from patient.serializers import PatientSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+from django.contrib import messages
+from django_daraja.mpesa.core import MpesaClient
 
 
 # Create your views here.
@@ -107,3 +111,29 @@ class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
     permission_classes = [AllowAny] 
+
+@login_required
+def make_payment(request):
+    if request.method == 'POST':
+        patient_name = request.POST.get('patient_name')
+        phone_number = request.POST.get('phone_number')
+        amount = int(request.POST.get('amount'))
+
+        payment = Payment.objects.create(
+            patient_name=patient_name,
+            phone_number=phone_number,
+            amount=amount
+        )
+        client = MpesaClient()
+        account_reference = "Hospital Payment"
+        transaction_desc = "Payment for hospital services"
+        callback_url = "https://darajambili.herokuapp.com/express-payment"  # Replace with your callback URL
+        response = client.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+        print(response.text)
+        payment.transaction_id = response.checkout_request_id
+        payment.save()
+        messages.success(request, 'Payment initiated successfully. Please complete the payment on your phone.')
+
+
+        return redirect('dashboard')
+    return render(request, 'make_payment.html')

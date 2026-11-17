@@ -37,4 +37,6 @@ urlpatterns = [
     path('delete/<int:patient_id>/', views.delete_patient, name='delete_patient'),
 
     path('', include(router.urls)),
+
+    path('make_payment/', views.make_payment, name='make_payment'),
 ]
